@@ -13,7 +13,6 @@ class IsAuthorOrReadOnly(BasePermission):
 
 
 class IsAdminOrReadOnly(BasePermission):
-    """Разрешения для GET-запросов и администратора."""
 
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS or (
