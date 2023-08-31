@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_%u7dp$f*&vh7(6m*d=d$v0auboc8c4oy1r&j(a6-dl@92t^jm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['158.160.7.97', '127.0.0.1', 'localhost', 'fuckinfoodgram.ddns.net']
 
 
 # Application definition
@@ -166,10 +166,3 @@ DJOSER = {
         'user_list': ['rest_framework.permissions.AllowAny'],
     },
 }
-
-LENGTH_TEXT = 15
-LENGTH_FIELD = 150
-LENGTH_NAME = 200
-LENGTH_UNIT = 30
-COLOR = 7
-
