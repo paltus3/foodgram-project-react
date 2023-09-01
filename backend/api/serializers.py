@@ -7,7 +7,7 @@ from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
 from recipes.models import Ingredient, AmountIngredient, Recipe, Tag
-from users.models import Subscription, User
+from users.models import User
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
