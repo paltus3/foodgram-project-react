@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from api.filters import IngredientFilter, RecipeFilter
-from api.pagination import CustomPagination
+from api.pagination import Pagination
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (
     CustomUserSerializer, IngredientSerializer,
