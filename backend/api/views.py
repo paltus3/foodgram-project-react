@@ -12,8 +12,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
-                            Carts, Tag)
+from recipes.models import (AmountIngredient, Carts, Favorite, Ingredient,
+                            Recipe, Tag)
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated

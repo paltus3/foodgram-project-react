@@ -2,8 +2,6 @@ from colorfield.fields import ColorField
 from django.core.validators import (MaxValueValidator, MinValueValidator,
                                     RegexValidator)
 from django.db import models
-from django.db.models import Model, ForeignKey
-
 from users.models import User
 
 
@@ -209,13 +207,13 @@ class Favorite(FavCartBase):
 
 
 class Carts(models.Model):
-    recipe = ForeignKey(
+    recipe = models.ForeignKey(
         verbose_name="Рецепты в списке покупок",
         related_name="in_carts",
         to=Recipe,
         on_delete=models.CASCADE,
     )
-    user = ForeignKey(
+    user = models.ForeignKey(
         verbose_name="Владелец списка",
         related_name="carts",
         to=User,
