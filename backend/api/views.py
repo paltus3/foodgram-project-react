@@ -151,7 +151,7 @@ class RecipeViewSet(ModelViewSet):
         ingredients = (
             Ingredient.objects.filter(recipe__recipe__in_carts__user=user)
             .values("name", measurement=F("measurement_unit"))
-            .annotate(amount=Sum("recipe__amount"))
+            .annotate(amount=Sum("recipes__amount"))
         )
         ing_list = (
             f'{ing["name"]}: {ing["amount"]} {ing["measurement"]}'
