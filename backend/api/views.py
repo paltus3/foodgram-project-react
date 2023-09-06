@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import Pagination
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
@@ -10,7 +12,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from foodgram.settings import CSV_FILES_DIR
 from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
                             ShoppingCart, Tag)
 from rest_framework import status
@@ -30,14 +31,13 @@ class CustomUserViewSet(UserViewSet):
         detail=True,
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticated],
-        url_path=r'(?P<pk>\d+)/subscribe'
     )
     def subscribe(self, request, **kwargs):
         user = request.user
         author_id = self.kwargs.get('id')
         author = get_object_or_404(User, id=author_id)
 
-        if request.method == 'POST':
+        if self.request.method == 'POST':
             serializer = SubscribeSerializer(author,
                                              data=request.data,
                                              context={"request": request})
@@ -45,18 +45,19 @@ class CustomUserViewSet(UserViewSet):
             Subscription.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if request.method == 'DELETE':
+        if self.request.method == 'DELETE':
             subscription = get_object_or_404(Subscription,
                                              user=user,
                                              author=author)
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['get'],
+    @action(detail=False,
+            methods=['get'],
             permission_classes=[IsAuthenticated],
             pagination_class=Pagination)
     def subscriptions(self, request):
-        queryset = User.objects.filter(subscribing__user=request.user)
+        queryset = User.objects.filter(author__user=request.user)
         pages = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(pages,
                                          many=True,
@@ -68,7 +69,8 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (IngredientFilter,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -100,6 +102,8 @@ class RecipeViewSet(ModelViewSet):
     def favorite(self, request, pk):
         if request.method == 'POST':
             return self.add_to(Favorite, request.user, pk)
+        else:
+            return self.delete_from(Favorite, request.user, pk)
 
     @action(
         detail=True,
@@ -133,19 +137,31 @@ class RecipeViewSet(ModelViewSet):
         detail=False,
         permission_classes=[IsAuthenticated]
     )
-    def download_shopping_cart(self, request, **kwargs):
-        ingredients = (
-            AmountIngredient.objects
-            .filter(recipe__shopping_recipe__user=request.user)
-            .values('ingredient')
-            .annotate(total_amount=Sum('amount'))
-            .values_list('ingredient__name', 'total_amount',
-                         'ingredient__measurement_unit')
+    def download_shopping_cart(self, request):
+        """Метод для скачивания списка покупок."""
+        user = request.user
+        if not user.shoppingcart.exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        ingredients = AmountIngredient.objects.filter(
+            recipe__shoppingcart__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount'))
+        today = datetime.today()
+        shopping_list = (
+            f'Список покупок для: {user.get_full_name()}\n\n'
+            f'Дата: {today:%Y-%m-%d}\n\n'
         )
-        file_list = []
-        [file_list.append(
-            '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]
-        file = HttpResponse('Cписок покупок:\n' + '\n'.join(file_list),
-                            content_type='text/plain')
-        file['Content-Disposition'] = (f'attachment; filename={CSV_FILES_DIR}')
-        return file
+        shopping_list += '\n'.join([
+            f'- {ingredient["ingredient__name"]} '
+            f'({ingredient["ingredient__measurement_unit"]})'
+            f' - {ingredient["amount"]}'
+            for ingredient in ingredients
+        ])
+        shopping_list += f'\n\nFoodgram ({today:%Y})'
+        filename = f'{user.username}_shopping_list.txt'
+        response = HttpResponse(
+            shopping_list, content_type='text.txt; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        return response
