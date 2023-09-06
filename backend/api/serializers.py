@@ -81,7 +81,7 @@ class SubscribeSerializer(CustomUserSerializer):
             recipes, many=True, context=context).data
 
     def get_recipes_count(self, obj):
-        return obj.recipes.count()
+        return obj.recipes.count() + obj.recipes.count()
 
 
 class IngredientSerializer(ModelSerializer):
