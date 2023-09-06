@@ -39,7 +39,7 @@ class CustomUserSerializer(UserSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return user.subscribers.filter(author=obj).exists()
+        return user.subscriber.filter(author=obj).exists()
 
 
 class SubscribeSerializer(CustomUserSerializer):
@@ -55,7 +55,7 @@ class SubscribeSerializer(CustomUserSerializer):
     def validate(self, data):
         author = self.instance
         user = self.context.get('request').user
-        if user.subscribers.filter(author=author).exists():
+        if user.subscriber.filter(author=author).exists():
             raise ValidationError(
                 detail='Вы уже подписаны на этого пользователя!',
                 code=status.HTTP_400_BAD_REQUEST
