@@ -17,16 +17,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+SECRET_KEY = os.getenv('SECRET_KEY', 'default_stub_key')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_%u7dp$f*&vh7(6m*d=d$v0auboc8c4oy1r&j(a6-dl@92t^jm'
+DEBUG = os.getenv('DEBUG', 'False')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-ALLOWED_HOSTS = ['158.160.7.97', '127.0.0.1', 'localhost', 'fuckinfoodgram.ddns.net']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 
 # Application definition
