@@ -9,7 +9,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
-from users.models import User
+from users.models import User, Subscription
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -55,7 +55,7 @@ class SubscribeSerializer(CustomUserSerializer):
     def validate(self, data):
         author = self.instance
         user = self.context.get('request').user
-        if user.subscriber.filter(author=author).exists():
+        if Subscription.objects.filter(author=author, user=user).exists():
             raise ValidationError(
                 detail='Вы уже подписаны на этого пользователя!',
                 code=status.HTTP_400_BAD_REQUEST
