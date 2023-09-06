@@ -2,6 +2,8 @@ from colorfield.fields import ColorField
 from django.core.validators import (MaxValueValidator, MinValueValidator,
                                     RegexValidator)
 from django.db import models
+from django.db.models import Model, ForeignKey
+
 from users.models import User
 
 
@@ -206,7 +208,35 @@ class Favorite(FavCartBase):
         verbose_name_plural = 'Избранное'
 
 
-class ShoppingCart(FavCartBase):
+class Carts(models.Model):
+    recipe = ForeignKey(
+        verbose_name="Рецепты в списке покупок",
+        related_name="in_carts",
+        to=Recipe,
+        on_delete=models.CASCADE,
+    )
+    user = ForeignKey(
+        verbose_name="Владелец списка",
+        related_name="carts",
+        to=User,
+        on_delete=models.CASCADE,
+    )
+    date_added = models.DateTimeField(
+        verbose_name="Дата добавления", auto_now_add=True, editable=False
+    )
+
     class Meta:
-        verbose_name = 'Список покупок'
-        verbose_name_plural = 'Список покупок'
+        verbose_name = "Рецепт в списке покупок"
+        verbose_name_plural = "Рецепты в списке покупок"
+        constraints = (
+            models.UniqueConstraint(
+                fields=(
+                    "recipe",
+                    "user",
+                ),
+                name="\n%(app_label)s_%(class)s recipe is cart alredy\n",
+            ),
+        )
+
+    def __str__(self) -> str:
+        return f"{self.user} -> {self.recipe}"
