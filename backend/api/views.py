@@ -22,7 +22,6 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from users.models import Subscription, User
 from django.apps import apps
 
-
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
@@ -142,30 +141,28 @@ class RecipeViewSet(ModelViewSet):
     )
     def download_shopping_cart(self, request):
         """Метод для скачивания списка покупок."""
-        user = request.user
+        user = self.request.user
         if not user.carts.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        ingredients = AmountIngredient.objects.filter(
-            recipe__carts__user=request.user
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
-        today = datetime.today()
-        shopping_list = (
-            f'Список покупок для: {user.get_full_name()}\n\n'
-            f'Дата: {today:%Y-%m-%d}\n\n'
+
+        filename = f"{user.username}_shopping_list.txt"
+        shopping_list = [
+            f"Список покупок для:\n\n{user.first_name}\n"
+            f"{datetime.today():%Y-%m-%d}\n\n"
+        ]
+        Ingredient = apps.get_model("recipes", "Ingredient")
+        ingredients = (
+            Ingredient.objects.filter(recipes__recipes__in_carts__user=user)
+            .values("name", measurement=F("measurement_unit"))
+            .annotate(amount=Sum("recipe__amount"))
         )
-        shopping_list += '\n'.join([
-            f'- {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement_unit"]})'
-            f' - {ingredient["amount"]}'
-            for ingredient in ingredients
-        ])
-        shopping_list += f'\n\nFoodgram ({today:%Y})'
-        filename = f'{user.username}_shopping_list.txt'
+        ing_list = (
+            f'{ing["name"]}: {ing["amount"]} {ing["measurement"]}'
+            for ing in ingredients
+        )
+        shopping_list.extend(ing_list)
         response = HttpResponse(
-            shopping_list, content_type='text.txt; charset=utf-8'
+            shopping_list, content_type="text.txt; charset=utf-8"
         )
-        response['Content-Disposition'] = f'attachment; filename={filename}'
+        response["Content-Disposition"] = f"attachment; filename={filename}"
         return response
