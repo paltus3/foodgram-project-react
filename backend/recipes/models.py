@@ -74,9 +74,7 @@ class Recipe(models.Model):
         upload_to='recipes/',
         verbose_name='Изображение'
     )
-    text = models.TextField(
-        verbose_name='Описание'
-    )
+    text = models.TextField(verbose_name='Описание')
     ingredients = models.ManyToManyField(
         Ingredient,
         through='AmountIngredient',
@@ -89,7 +87,7 @@ class Recipe(models.Model):
         related_name='recipes'
     )
     cooking_time = models.PositiveIntegerField(
-        verbose_name='Время приготовления',
+        verbose_name='Время приготовления (мин.)',
         validators=[
             MinValueValidator(
                 1,
@@ -147,8 +145,8 @@ class AmountIngredient(models.Model):
 
     class Meta:
         ordering = ('ingredient',)
-        verbose_name = 'Количество ингредиентов'
-        verbose_name_plural = 'Количество ингредиентов'
+        verbose_name = 'Ингредиент и количество'
+        verbose_name_plural = 'Ингредиенты и количество'
 
     def __str__(self):
         return f'{self.ingredient} в рецепте {self.recipe}'
