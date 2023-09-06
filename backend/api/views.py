@@ -142,7 +142,7 @@ class RecipeViewSet(ModelViewSet):
     def download_shopping_cart(self, request):
         """Метод для скачивания списка покупок."""
         user = request.user
-        if not user.shoppingcart.exists():
+        if not user.carts.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         ingredients = AmountIngredient.objects.filter(
             recipe__shoppingcart__user=request.user
