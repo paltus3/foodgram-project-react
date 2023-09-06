@@ -149,7 +149,7 @@ class RecipeViewSet(ModelViewSet):
         ]
         Ingredient = apps.get_model("recipes", "Ingredient")
         ingredients = (
-            Ingredient.objects.filter(recipe__recipe__in_carts__user=user)
+            Ingredient.objects.filter(recipe__recipes__in_carts__user=user)
             .values("name", measurement=F("measurement_unit"))
             .annotate(amount=Sum("recipes__amount"))
         )
