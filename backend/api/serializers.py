@@ -253,6 +253,7 @@ class RecipeWriteSerializer(ModelSerializer):
             )
         return name
 
+    @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):
         AmountIngredient.objects.bulk_create(
             [AmountIngredient(
