@@ -5,34 +5,9 @@ from django.db import models
 from users.models import User
 
 
-class Ingredient(models.Model):
-    name = models.CharField(
-        max_length=200,
-        verbose_name='Ингредиент'
-    )
-    measurement_unit = models.CharField(
-        max_length=30,
-        verbose_name='Единицы измерения'
-    )
-
-    class Meta:
-        ordering = ('name',)
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
-        constraints = (
-            models.UniqueConstraint(
-                fields=['name', 'measurement_unit'],
-                name='unique_ingredient_measurement_unit'
-            ),
-        )
-
-    def __str__(self):
-        return self.name
-
-
 class Tag(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=150,
         unique=True,
         verbose_name='Название'
     )
@@ -59,6 +34,31 @@ class Tag(models.Model):
         return self.name
 
 
+class Ingredient(models.Model):
+    name = models.CharField(
+        max_length=150,
+        verbose_name='Ингредиент'
+    )
+    measurement_unit = models.CharField(
+        max_length=30,
+        verbose_name='Единицы измерения'
+    )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+        constraints = (
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient_measurement_unit'
+            ),
+        )
+
+    def __str__(self):
+        return self.name
+
+
 class Recipe(models.Model):
     author = models.ForeignKey(
         User,
@@ -67,7 +67,7 @@ class Recipe(models.Model):
         related_name='recipes'
     )
     name = models.CharField(
-        max_length=200,
+        max_length=150,
         verbose_name='Название'
     )
     image = models.ImageField(
@@ -206,35 +206,7 @@ class Favorite(FavCartBase):
         verbose_name_plural = 'Избранное'
 
 
-class Carts(models.Model):
-    recipe = models.ForeignKey(
-        verbose_name="Рецепты в списке покупок",
-        related_name="in_carts",
-        to=Recipe,
-        on_delete=models.CASCADE,
-    )
-    user = models.ForeignKey(
-        verbose_name="Владелец списка",
-        related_name="carts",
-        to=User,
-        on_delete=models.CASCADE,
-    )
-    date_added = models.DateTimeField(
-        verbose_name="Дата добавления", auto_now_add=True, editable=False
-    )
-
+class ShoppingCart(FavCartBase):
     class Meta:
-        verbose_name = "Рецепт в списке покупок"
-        verbose_name_plural = "Рецепты в списке покупок"
-        constraints = (
-            models.UniqueConstraint(
-                fields=(
-                    "recipe",
-                    "user",
-                ),
-                name="\n%(app_label)s_%(class)s recipe is cart alredy\n",
-            ),
-        )
-
-    def __str__(self) -> str:
-        return f"{self.user} -> {self.recipe}"
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Список покупок'

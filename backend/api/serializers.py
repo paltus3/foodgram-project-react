@@ -39,7 +39,7 @@ class CustomUserSerializer(UserSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return user.subscriber.filter(author=obj).exists()
+        return Subscription.objects.filter(user=user, author=obj).exists()
 
 
 class SubscribeSerializer(CustomUserSerializer):
@@ -81,7 +81,7 @@ class SubscribeSerializer(CustomUserSerializer):
             recipes, many=True, context=context).data
 
     def get_recipes_count(self, obj):
-        return obj.recipes.count() + obj.recipes.count()
+        return obj.recipes.count()
 
 
 class IngredientSerializer(ModelSerializer):
@@ -162,7 +162,7 @@ class RecipeReadSerializer(ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return user.carts.filter(recipe=obj).exists()
+        return user.shoppingcart.filter(recipe=obj).exists()
 
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
