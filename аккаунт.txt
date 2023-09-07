@@ -1,3 +1,4 @@
 Не знал, как передать, потом удалю
 акк для сайта mail: testtest@test.ru password: test12345
 акк для admin mail: test@test.com password: test
+https://fuckinfoodgram.ddns.net/
