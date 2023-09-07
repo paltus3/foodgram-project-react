@@ -22,6 +22,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from users.models import Subscription, User
 from django.apps import apps
 
+
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
