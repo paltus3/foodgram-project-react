@@ -3,13 +3,14 @@ from re import match
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import AmountIngredient, Ingredient, Recipe, Tag
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
-from users.models import Subscription, User
+
+from recipes.models import AmountIngredient, Ingredient, Recipe, Tag
+from users.models import User
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
